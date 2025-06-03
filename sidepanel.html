@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Airdrop Bookmarks</title>
+    <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+    <h1>My Airdrop Bookmarks</h1>
+    <div class="filter-controls">
+        <label for="filterCategory">Filter by Category:</label>
+        <select id="filterCategory">
+            <option value="">All</option>
+            </select>
+        <label for="filterPriority">Filter by Priority:</label>
+        <select id="filterPriority">
+            <option value="">All</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+        </select>
+    </div>
+    <label>
+        <input type="checkbox" id="showCompleted"> Show Completed
+    </label>
+    <div class="export-import-controls">
+        <button id="exportBookmarks">Export Bookmarks</button>
+        <input type="file" id="importBookmarks" accept=".json" style="display: none;">
+        <button id="importButton">Import Bookmarks</button>
+    </div>
+    <ul id="bookmarkList"></ul>
+
+    <script src="sidepanel.js"></script>
+</body>
+</html>

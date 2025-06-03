@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 15px;
+    width: 300px; /* Lebar popup */
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form select {
+    width: calc(100% - 12px);
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+#statusMessage {
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+    color: #28a745; /* Warna hijau untuk sukses */
+}

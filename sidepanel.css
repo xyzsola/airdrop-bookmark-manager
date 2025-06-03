@@ -1,0 +1,137 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 15px;
+    width: 280px; /* Lebar panel samping */
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.filter-controls {
+    display: none;
+    flex-wrap: wrap; /* Agar bisa wrap ke baris baru jika sempit */
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.filter-controls label {
+    font-size: 0.9em;
+}
+
+.filter-controls select,
+.filter-controls input[type="checkbox"] {
+    flex: 1; /* Biarkan selectbox mengambil ruang */
+    min-width: 80px; /* Batas minimal agar tidak terlalu kecil */
+}
+
+#bookmarkList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#bookmarkList li {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.bookmark-item-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.favicon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+#bookmarkList li a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+    flex-grow: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#bookmarkList li span {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+.bookmark-actions {
+    margin-top: 10px;
+    display: flex; /* Untuk menata tombol edit/hapus */
+    gap: 5px;
+}
+
+.bookmark-actions button {
+    background-color: #e74c3c;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    width: auto; /* Agar tidak 100% lebar */
+}
+
+.bookmark-actions button.edit {
+    background-color: #f39c12;
+}
+
+.bookmark-actions button.mark-done {
+    background-color: #28a745;
+}
+
+.bookmark-actions button.mark-done:hover {
+    background-color: #218838;
+}
+
+.bookmark-actions button:hover {
+    opacity: 0.9;
+}
+
+/* Gaya untuk bookmark yang sudah selesai */
+.completed {
+    opacity: 0.6;
+    text-decoration: line-through;
+    background-color: #e0e0e0;
+}
+
+.export-import-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.export-import-controls button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.export-import-controls button:hover {
+    background-color: #45a049;
+}
