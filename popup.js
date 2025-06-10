@@ -109,6 +109,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    const openSidePanelButton = document.getElementById('openSidePanelButton');
+
+    openSidePanelButton.addEventListener('click', async () => {
+        // Mendapatkan tab yang sedang aktif
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+        // Membuka side panel untuk tab tersebut
+        await chrome.sidePanel.open({ tabId: tab.id });
+    });
+
     // --- Initial Load ---
     getActiveTabInfo();
     loadCategories();

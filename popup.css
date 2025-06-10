@@ -48,3 +48,11 @@ button:hover {
     font-weight: bold;
     color: #28a745; /* Warna hijau untuk sukses */
 }
+
+#openSidePanelButton {
+    background-color: #4CAF50; /* Warna hijau */
+}
+
+#openSidePanelButton:hover {
+    background-color: #45a049;
+}
