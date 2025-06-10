@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newCategoryInput = document.getElementById('newCategory');
     const prioritySelect = document.getElementById('priority');
     const statusMessageDiv = document.getElementById('statusMessage');
+    const openInNewTabButton = document.getElementById('openInNewTabButton');
 
     // --- Helper Functions ---
     const getActiveTabInfo = async () => {
@@ -38,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Event Listeners ---
+    openInNewTabButton.addEventListener('click', () => {
+        chrome.tabs.create({ url: chrome.runtime.getURL('sidepanel.html') });
+    });
+
     bookmarkForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 

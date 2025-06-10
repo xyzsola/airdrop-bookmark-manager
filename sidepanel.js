@@ -101,6 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         li.classList.add('completed');
                     }
 
+                    li.style.setProperty('--favicon-url', `url("${bookmark.faviconUrl || getFaviconUrl(bookmark.url)}")`);
+                    
                     li.innerHTML = `
                         <div class="bookmark-item-content">
                             <img src="${bookmark.faviconUrl || getFaviconUrl(bookmark.url)}" class="favicon" alt="Favicon">

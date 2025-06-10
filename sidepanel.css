@@ -231,6 +231,39 @@ h1 {
 
         /* Tambahkan display: flex agar konten di dalam li tetap vertikal */
         display: flex;
+
+        /* --- Tambahan untuk Background Favicon --- */
+        background-size: contain; /* Ukuran favicon agar sesuai tanpa terpotong */
+        background-repeat: no-repeat; /* Jangan ulangi gambar */
+        background-position: left center; /* Posisikan di tengah kanan */
+        background-blend-mode: luminosity; /* Mode blend untuk efek opasitas yang lebih baik */
+        opacity: 1; /* Pastikan opasitas utama item adalah 1 */
+        transition: background-image 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Transisi agar halus */
+        position: relative;
+    }
+
+    #bookmarkList li:before { 
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: var(--favicon-url); /* Akan diisi dari JS */
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: right center;
+        opacity: 0.2; /* Opasitas 20% untuk favicon background */
+        z-index: 0; /* Pastikan di belakang konten */
+    }
+
+    #bookmarkList li.completed {
+        opacity: 0.7;
+    }
+
+    #bookmarkList li > * {
+        position: relative;
+        z-index: 1;
     }
 
     .bookmark-item-content {
