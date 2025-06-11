@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prioritySelect = document.getElementById('priority');
     const statusMessageDiv = document.getElementById('statusMessage');
     const openInNewTabButton = document.getElementById('openInNewTabButton');
+    const openSidePanelButton = document.getElementById('openSidePanelButton');
 
     // --- Helper Functions ---
     const getActiveTabInfo = async () => {
@@ -114,15 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const openSidePanelButton = document.getElementById('openSidePanelButton');
+    // openSidePanelButton.addEventListener('click', async () => {
+    //     // Mendapatkan tab yang sedang aktif
+    //     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-    openSidePanelButton.addEventListener('click', async () => {
-        // Mendapatkan tab yang sedang aktif
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-        // Membuka side panel untuk tab tersebut
-        await chrome.sidePanel.open({ tabId: tab.id });
-    });
+    //     // Membuka side panel untuk tab tersebut
+    //     await chrome.sidePanel.open({ tabId: tab.id });
+    // });
 
     // --- Initial Load ---
     getActiveTabInfo();
