@@ -207,14 +207,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     }
     // Selalu jadwalkan pengingat dan alarm saat service worker aktif
     scheduleDailyReset();
-    schedule30MinReminder();
-    // startReminder();
+    // schedule30MinReminder();
 });
 
 // Jika service worker dinonaktifkan/di-restart, pastikan alarm dan interval dimulai kembali
 chrome.runtime.onStartup.addListener(() => {
     console.log("Service worker started up, scheduling reminders.");
     scheduleDailyReset();
-    schedule30MinReminder();
-    // startReminder();
+    // schedule30MinReminder();
 });
