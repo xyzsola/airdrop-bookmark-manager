@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const bookmarkList = document.getElementById('bookmarkList');
-    const filterCategorySelect = document.getElementById('filterCategory');
+    const tabNavigation = document.querySelector('.tab-navigation');
+    const bookmarkGridContainer = document.querySelector('.bookmark-grid-container'); // Ganti dari bookmarkList
     const filterPrioritySelect = document.getElementById('filterPriority');
     const showCompletedCheckbox = document.getElementById('showCompleted');
-    const openInNewTabButton = document.getElementById('openInNewTabButton'); // Ambil referensi tombol baru
+    const openInNewTabButton = document.getElementById('openInNewTabButton');
 
     const exportButton = document.getElementById('exportBookmarks');
     const importButton = document.getElementById('importButton');
@@ -11,149 +11,192 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allBookmarks = [];
     let allCategories = [];
+    let activeCategory = ''; // Kategori yang sedang aktif (default: All)
 
     // --- Helper Functions ---
     const getFaviconUrl = (url) => {
         return `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(url)}`;
     };
 
-    const loadCategoriesIntoFilter = async () => {
-        const result = await chrome.storage.local.get('categories');
+    const loadCategoriesAndRenderTabs = async () => {
+        const result = await chrome.storage.local.get(['categories', 'bookmarks']);
         allCategories = result.categories || [];
+        allBookmarks = result.bookmarks || [];
 
-        filterCategorySelect.innerHTML = '<option value="">All</option>';
-        allCategories.forEach(cat => {
-            const filterOption = document.createElement('option');
-            filterOption.value = cat;
-            filterOption.textContent = cat;
-            filterCategorySelect.appendChild(filterOption);
+        // Pastikan 'All' selalu ada sebagai kategori pertama
+        const uniqueCategories = ['All', ...new Set(allCategories.filter(cat => cat !== 'All'))];
+
+        tabNavigation.innerHTML = ''; // Clear existing tabs
+
+        uniqueCategories.forEach(category => {
+            const tabButton = document.createElement('button');
+            tabButton.classList.add('tab-button');
+            tabButton.textContent = category === 'All' ? 'All' : category; // Teks untuk tombol "All"
+            tabButton.dataset.category = category === 'All' ? '' : category; // Data attribute untuk filter
+
+            if (tabButton.dataset.category === activeCategory) {
+                tabButton.classList.add('active');
+            }
+
+            tabButton.addEventListener('click', () => {
+                activeCategory = tabButton.dataset.category;
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                tabButton.classList.add('active');
+                renderBookmarkCards(); // Render ulang kartu berdasarkan kategori baru
+            });
+            tabNavigation.appendChild(tabButton);
         });
+
+        // Pastikan activeCategory diatur jika belum
+        if (!activeCategory && uniqueCategories.length > 0) {
+            activeCategory = uniqueCategories[0] === 'All' ? '' : uniqueCategories[0];
+            tabNavigation.querySelector(`[data-category="${activeCategory}"]`).classList.add('active');
+        }
     };
 
     const saveBookmarks = async () => {
         await chrome.storage.local.set({ bookmarks: allBookmarks });
     };
 
-    const loadBookmarksAndCategories = async () => {
-        const result = await chrome.storage.local.get(['bookmarks', 'categories']);
-        allBookmarks = result.bookmarks || [];
-        allCategories = result.categories || [];
-        // Pastikan setiap bookmark memiliki properti 'completed'
-        allBookmarks.forEach(b => {
-            if (b.completed === undefined) {
-                b.completed = false;
-            }
-        });
-        await saveBookmarks(); // Simpan jika ada perubahan pada properti 'completed'
-        await loadCategoriesIntoFilter();
-        renderBookmarks();
-    };
+    const renderBookmarkCards = () => {
+        bookmarkGridContainer.innerHTML = ''; // Clear current grid
 
-    const renderBookmarks = () => {
-        bookmarkList.innerHTML = ''; // Clear current list
-
-        const filterCat = filterCategorySelect.value;
         const filterPrio = filterPrioritySelect.value;
         const showCompleted = showCompletedCheckbox.checked;
 
         const filteredBookmarks = allBookmarks.filter(bookmark => {
-            const matchesCategory = filterCat === '' || bookmark.category === filterCat;
+            const matchesCategory = activeCategory === '' || bookmark.category === activeCategory;
             const matchesPriority = filterPrio === '' || bookmark.priority === filterPrio;
-            const matchesCompleted = showCompleted || !bookmark.completed;
+            // const matchesCompleted = showCompleted || !bookmark.completed;
 
-            return matchesCategory && matchesPriority && matchesCompleted;
-        });
+            const matchesCompletedVisibility = showCompleted || !bookmark.completed;
 
-        // Group bookmarks by priority
-        const groupedBookmarks = {
-            'High': [],
-            'Medium': [],
-            'Low': []
-        };
-
-        filteredBookmarks.forEach(bookmark => {
-            if (groupedBookmarks[bookmark.priority]) {
-                groupedBookmarks[bookmark.priority].push(bookmark);
-            }
-        });
-
-        // Render each priority group
-        const priorityOrder = ['High', 'Medium', 'Low'];
-        priorityOrder.forEach(priority => {
-            const bookmarksInGroup = groupedBookmarks[priority];
-            if (bookmarksInGroup.length > 0) {
-                const groupDiv = document.createElement('div');
-                groupDiv.classList.add('priority-group');
-
-                const groupTitle = document.createElement('h2');
-                groupTitle.textContent = `${priority} Priority`;
-                groupDiv.appendChild(groupTitle);
-
-                const ul = document.createElement('ul');
-                ul.id = 'bookmarkList-' + priority.toLowerCase(); // ID unik untuk setiap UL
-                
-                bookmarksInGroup.sort((a, b) => b.id - a.id); // Urutkan terbaru dulu dalam setiap grup
-
-                bookmarksInGroup.forEach(bookmark => {
-                    const li = document.createElement('li');
-                    li.dataset.id = bookmark.id;
-                    if (bookmark.completed) {
-                        li.classList.add('completed');
-                    }
-
-                    li.style.setProperty('--favicon-url', `url("${bookmark.faviconUrl || getFaviconUrl(bookmark.url)}")`);
-                    
-                    li.innerHTML = `
-                        <div class="bookmark-item-content">
-                            <img src="${bookmark.faviconUrl || getFaviconUrl(bookmark.url)}" class="favicon" alt="Favicon">
-                            <a href="${bookmark.url}" target="_blank">${bookmark.title}</a>
-                        </div>
-                        <div class="bookmark-actions">
-                            <button class="mark-done" data-id="${bookmark.id}">${bookmark.completed ? 'Mark Undone' : 'Mark Done'}</button>
-                            <button class="delete" data-id="${bookmark.id}">Delete</button>
-                        </div>
-                    `;
-                    // Anda bisa menambahkan kategori dan prioritas sebagai span jika ingin ditampilkan di dalam item
-                    // li.querySelector('.bookmark-item-content').insertAdjacentHTML('afterend', `<span>Category: ${bookmark.category}</span><span>Priority: ${bookmark.priority}</span>`);
-                    ul.appendChild(li);
-                });
-                groupDiv.appendChild(ul);
-                bookmarkList.appendChild(groupDiv); // Tambahkan grup ke #bookmarkList utama
-            }
+            return matchesCategory && matchesPriority && matchesCompletedVisibility;
         });
 
         if (filteredBookmarks.length === 0) {
-            const li = document.createElement('li');
-            li.textContent = 'No bookmarks found for the current filters.';
-            bookmarkList.appendChild(li);
+            const message = document.createElement('p');
+            message.textContent = 'No bookmarks found for the selected category or filters.';
+            message.style.textAlign = 'center';
+            message.style.color = '#b9bbbe';
+            bookmarkGridContainer.appendChild(message);
+            return;
+        }
+
+        // Sort bookmarks by creation date (newest first)
+        filteredBookmarks.sort((a, b) => b.id - a.id);
+
+        filteredBookmarks.forEach(bookmark => {
+            const card = document.createElement('div');
+            card.classList.add('bookmark-card');
+            card.dataset.id = bookmark.id;
+            
+            if (bookmark.completed) {
+                card.classList.add('completed');
+            }
+
+            // if (bookmark.isFavorite) {
+            //     card.classList.add('is-favorite');
+            // }
+
+            // HTML untuk setiap kartu
+            card.innerHTML = `
+                <img src="${bookmark.faviconUrl || getFaviconUrl(bookmark.url)}" class="favicon" alt="Favicon">
+                <h3>${bookmark.title}</h3>
+                <div class="action-buttons-group">
+                    <button class="action-button mark-done" data-id="${bookmark.id}">${bookmark.completed ? 'Mark Undone' : 'Mark Done'}</button>
+                    <button class="delete-button" data-id="${bookmark.id}">X</button>
+                </div>
+            `;
+
+            // Tambahkan event listener untuk membuka link saat kartu diklik
+            card.addEventListener('click', (e) => {
+                // Pastikan klik pada tombol tidak membuka link
+                if (e.target.tagName !== 'BUTTON' && e.target.closest('.action-button') === null) {
+                    chrome.tabs.create({ url: bookmark.url });
+                }
+            });
+
+            bookmarkGridContainer.appendChild(card);
+        });
+    };
+
+    // --- Daily Reset ---
+    const resetBookmarksDaily = async () => {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+
+        // Ambil waktu terakhir reset dari storage
+        const result = await chrome.storage.local.get('lastResetDate');
+        const lastResetDate = result.lastResetDate ? new Date(result.lastResetDate) : null;
+
+        // Cek apakah hari ini sudah direset (atau belum pernah direset)
+        const isNewDay = !lastResetDate || lastResetDate.toDateString() !== now.toDateString();
+
+        // Jika ini hari baru DAN jam 7 pagi atau lebih (dan belum direset hari ini)
+        if (isNewDay && currentHour >= 7) {
+            console.log('It is a new day and past 7 AM. Resetting bookmarks...');
+            
+            let changed = false;
+            allBookmarks.forEach(b => {
+                if (b.completed) {
+                    b.completed = false; // Set semua ke belum selesai
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                await saveBookmarks();
+                renderBookmarkCards();
+            }
+
+            // Simpan tanggal reset terakhir
+            await chrome.storage.local.set({ lastResetDate: now.toISOString() });
+            console.log('Bookmarks reset and lastResetDate updated.');
+        } else {
+            console.log('Not yet time to reset, or already reset today.');
         }
     };
 
     // --- Event Listeners ---
-    bookmarkList.addEventListener('click', async (event) => {
+    bookmarkGridContainer.addEventListener('click', async (event) => {
         const target = event.target;
         const id = parseInt(target.dataset.id);
+        const card = target.closest('.bookmark-card');
 
-        if (target.classList.contains('delete')) {
-            allBookmarks = allBookmarks.filter(b => b.id !== id);
-            await saveBookmarks();
-            renderBookmarks();
-        } else if (target.classList.contains('mark-done')) {
+        if (target.classList.contains('mark-done')) {
             const bookmarkIndex = allBookmarks.findIndex(b => b.id === id);
             if (bookmarkIndex !== -1) {
                 allBookmarks[bookmarkIndex].completed = !allBookmarks[bookmarkIndex].completed;
                 await saveBookmarks();
-                renderBookmarks();
+                
+                // Jika tombol "Mark Done" diklik, sembunyikan/tampilkan sesuai checkbox
+                if (!showCompletedCheckbox.checked && allBookmarks[bookmarkIndex].completed) {
+                    // Jika mode "sembunyikan yang selesai" aktif dan item baru saja selesai, sembunyikan.
+                    card.style.display = 'none'; // Sembunyikan item
+                } else if (!showCompletedCheckbox.checked && !allBookmarks[bookmarkIndex].completed) {
+                    // Jika mode "sembunyikan yang selesai" aktif dan item baru saja di-undone, tampilkan.
+                    card.style.display = 'flex'; // Tampilkan kembali
+                } else {
+                    // Jika checkbox "Show Completed" dicentang, atau item di-undone, cukup render ulang
+                    renderBookmarkCards();
+                }
+            }
+        } else if (target.classList.contains('delete-button')) { 
+            if (confirm('Are you sure you want to delete this bookmark?')) {
+                allBookmarks = allBookmarks.filter(b => b.id !== id);
+                await saveBookmarks();
+                renderBookmarkCards();
             }
         }
-        // Tidak ada lagi edit button di sini, jadi bagian ini bisa dihapus atau diubah jika Anda ingin mengimplementasikan edit modal
+        // Jika Anda ingin tombol delete di kartu, tambahkan di sini
+        // else if (target.classList.contains('delete-card')) { ... }
     });
 
-    filterCategorySelect.addEventListener('change', renderBookmarks);
-    filterPrioritySelect.addEventListener('change', renderBookmarks);
-    showCompletedCheckbox.addEventListener('change', renderBookmarks);
+    filterPrioritySelect.addEventListener('change', renderBookmarkCards);
+    showCompletedCheckbox.addEventListener('change', renderBookmarkCards);
 
-    // --- New Event Listener for Open in New Tab Button ---
     openInNewTabButton.addEventListener('click', () => {
         chrome.tabs.create({ url: chrome.runtime.getURL('sidepanel.html') });
     });
@@ -179,8 +222,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const importedBookmarks = JSON.parse(event.target.result);
                 if (Array.isArray(importedBookmarks)) {
                     allBookmarks = importedBookmarks;
+                    // Pastikan bookmark yang diimpor memiliki properti 'completed' dan 'isFavorite'
+                    allBookmarks.forEach(b => {
+                        if (b.completed === undefined) b.completed = false;
+                        if (b.isFavorite === undefined) b.isFavorite = false;
+                    });
                     await saveBookmarks();
-                    renderBookmarks();
+                    await loadCategoriesAndRenderTabs(); // Muat ulang tab dan render kartu
                     alert('Bookmarks imported successfully!');
                 } else {
                     alert('Invalid bookmark file format.');
@@ -207,5 +255,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Initial Load ---
-    loadBookmarksAndCategories();
+    const initializeBookmarks = async () => {
+        const result = await chrome.storage.local.get(['bookmarks', 'categories']);
+        allBookmarks = result.bookmarks || [];
+        allCategories = result.categories || [];
+        // Pastikan setiap bookmark memiliki properti 'completed' dan 'isFavorite'
+        allBookmarks.forEach(b => {
+            if (b.completed === undefined) {
+                b.completed = false;
+            }
+            if (b.isFavorite === undefined) {
+                b.isFavorite = false;
+            }
+        });
+        await saveBookmarks(); 
+        await resetBookmarksDaily();
+        await loadCategoriesAndRenderTabs(); 
+        renderBookmarkCards(); 
+    };
+
+    initializeBookmarks();
 });

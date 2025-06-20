@@ -1,14 +1,23 @@
 body {
     font-family: Arial, sans-serif;
     padding: 15px;
-    /* width: 280px;  */
-    background-color: #f4f7f6;
-    color: #333;
+    width: 320px; /* Lebar default untuk side panel */
+    background-color: #2c2f33; /* Dark background as in the image */
+    color: #f6f6f6; /* Light text color */
+}
+
+/* --- Header Section --- */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 h1 {
-    color: #2c3e50;
-    margin-bottom: 15px;
+    color: #e0e0e0;
+    margin: 0;
+    font-size: 1.5em;
 }
 
 #openInNewTabButton {
@@ -19,37 +28,213 @@ h1 {
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.9em;
-    width: 100%;
-    margin-bottom: 15px;
 }
 
 #openInNewTabButton:hover {
     background-color: #0056b3;
 }
 
-.filter-controls {
+/* --- Tab Navigation --- */
+.tab-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; /* Jarak antar tombol tab */
+    margin-bottom: 20px;
+    justify-content: center; /* Pusatkan tab */
+}
+
+.tab-button {
+    background-color: #36393f; /* Darker background for inactive tabs */
+    color: #b9bbbe; /* Lighter text for inactive tabs */
+    padding: 8px 15px;
+    border: none;
+    border-radius: 20px; /* Rounded corners for tabs */
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tab-button:hover {
+    background-color: #4f545c;
+}
+
+.tab-button.active {
+    background-color: #7289da; /* Discord-like blue for active tab */
+    color: white;
+    font-weight: bold;
+}
+
+/* --- Filter & Priority Controls --- */
+.filter-priority-controls {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     align-items: center;
+    justify-content: center; /* Pusatkan kontrol */
+    background-color: #36393f;
+    padding: 10px;
+    border-radius: 8px;
 }
 
-.filter-controls label {
+.filter-priority-controls label {
+    font-size: 0.9em;
+    color: #b9bbbe;
+}
+
+.filter-priority-controls select {
+    background-color: #40444b;
+    color: #f6f6f6;
+    border: 1px solid #2c2f33;
+    border-radius: 4px;
+    padding: 5px;
     font-size: 0.9em;
 }
 
-.filter-controls select,
-.filter-controls input[type="checkbox"] {
-    flex: 1;
-    min-width: 80px;
+.filter-priority-controls input[type="checkbox"] {
+    margin-right: 5px;
 }
 
+.show-completed-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+
+/* --- Bookmark Grid Container (untuk kartu persegi) --- */
+.bookmark-grid-container {
+    display: grid;
+    /* 2 kolom untuk side panel, jarak 15px */
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    padding: 0;
+    margin-bottom: 20px; /* Spasi di bawah grid */
+}
+
+/* --- Bookmark Card Item (Setiap Bookmark) --- */
+.bookmark-card {
+    background-color: #36393f; /* Latar belakang kartu */
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column; /* Konten di dalam kartu disusun vertikal */
+    align-items: center; /* Pusatkan konten horizontal */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer; /* Menunjukkan bahwa kartu bisa diklik */
+    position: relative; /* Untuk heart icon */
+}
+
+.bookmark-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.bookmark-card .favicon {
+    width: 64px; /* Ukuran ikon lebih besar */
+    height: 64px;
+    border-radius: 12px; /* Sedikit rounded corner untuk ikon */
+    margin-bottom: 10px;
+    object-fit: contain; /* Pastikan ikon tidak terdistorsi */
+    background-color: #202225; /* Background untuk ikon */
+    padding: 5px;
+}
+
+.bookmark-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.1em;
+    color: #f6f6f6;
+    white-space: nowrap; /* Jangan memecah teks */
+    overflow: hidden; /* Sembunyikan overflow */
+    text-overflow: ellipsis; /* Tampilkan elipsis jika terlalu panjang */
+    width: 100%; /* Agar ellipsis bekerja */
+}
+
+.bookmark-card .action-button {
+    background-color: #7289da; /* Warna tombol Done */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    width: 100%; /* Lebar tombol penuh */
+    margin-top: auto; /* Dorong tombol ke bawah kartu */
+}
+
+.bookmark-card .action-button:hover {
+    background-color: #677dc2;
+}
+
+.bookmark-card.completed {
+    opacity: 0.7;
+    /* Gaya untuk kartu yang selesai */
+}
+
+/* --- Heart Icon (seperti di attachment) --- */
+.bookmark-card .favorite-icon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #f0f0f0; /* Warna default */
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+.bookmark-card .favorite-icon.active {
+    color: #e74c3c; /* Warna merah jika favorit */
+}
+
+.bookmark-card .action-buttons-group { /* Wrapper baru untuk tombol aksi */
+    display: flex;
+    gap: 8px; /* Jarak antar tombol */
+    margin-top: auto; /* Dorong grup tombol ke bawah kartu */
+    width: 100%; /* Grup tombol memenuhi lebar kartu */
+    justify-content: center; /* Pusatkan tombol di dalam grup */
+}
+
+.bookmark-card .action-buttons-group .action-button {
+    background-color: #7289da;
+    color: white;
+    padding: 8px 10px; /* Padding sedikit lebih kecil agar muat dua tombol */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    flex-grow: 1; /* Biarkan tombol mengambil ruang yang sama */
+    min-width: 0; /* Penting untuk flex-grow */
+}
+
+.bookmark-card .action-buttons-group .action-button:hover {
+    background-color: #677dc2;
+}
+
+/* Gaya untuk tombol Hapus (X) */
+.bookmark-card .action-buttons-group .delete-button {
+    background-color: #e74c3c; /* Merah */
+    color: white;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10px;
+    flex-grow: 1; /* Biarkan tombol mengambil ruang yang sama */
+    min-width: 0;
+}
+
+.bookmark-card .action-buttons-group .delete-button:hover {
+    background-color: #c0392b; /* Merah yang lebih gelap saat hover */
+}
+
+/* --- Export/Import Controls --- */
 .export-import-controls {
     display: flex;
     gap: 10px;
     margin-top: 15px;
-    margin-bottom: 20px; /* Tambahkan spasi di bawah kontrol ini */
+    margin-bottom: 20px;
+    justify-content: center;
 }
 
 .export-import-controls button {
@@ -66,231 +251,22 @@ h1 {
     background-color: #45a049;
 }
 
-/* --- Gaya untuk Pengelompokan Prioritas --- */
-.priority-group {
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden; /* Penting untuk margin collapse */
-}
-
-.priority-group h2 {
-    background-color: #e2e6ea;
-    color: #2c3e50;
-    padding: 10px 15px;
-    margin: 0; /* Hapus margin default */
-    font-size: 1.1em;
-    border-bottom: 1px solid #ddd;
-}
-
-/* --- Gaya untuk Daftar Bookmark --- */
-#bookmarkList {
-    list-style-type: none;
-    padding: 0;
-    margin: 0; /* Hapus margin default ul */
-}
-
-#bookmarkList li {
-    background-color: #ffffff;
-    border-bottom: 1px solid #eee; /* Garis bawah antar item */
-    padding: 10px 15px; /* Padding di dalam item */
-    display: flex;
-    align-items: center; /* Pusatkan item secara vertikal */
-    gap: 10px; /* Jarak antar elemen dalam item */
-    justify-content: space-between; /* Untuk mendorong tombol delete ke kanan */
-}
-
-.bookmark-item-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-grow: 1; /* Biarkan konten mengambil ruang sebanyak mungkin */
-    min-width: 0; /* Penting agar text-overflow: ellipsis bekerja */
-}
-
-.favicon {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0; /* Jangan biarkan favicon menyusut */
-}
-
-#bookmarkList li a {
-    color: #3498db;
-    text-decoration: none;
-    font-weight: bold;
-    flex-grow: 1;
-    min-width: 0; /* Penting untuk text-overflow: ellipsis */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-#bookmarkList li a:hover {
-    text-decoration: underline;
-}
-
-/* --- Gaya untuk Tombol Delete --- */
-.bookmark-actions {
-    flex-shrink: 0; /* Jangan biarkan tombol menyusut */
-    display: flex;
-    gap: 5px; /* Jarak antar tombol */
-    align-items: center;
-}
-
-.bookmark-actions button {
-    background-color: #e74c3c;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8em;
-    width: auto;
-    white-space: nowrap; /* Jangan memecah teks tombol */
-}
-
-.bookmark-actions button.edit {
-    background-color: #f39c12;
-}
-
-.bookmark-actions button.mark-done {
-    background-color: #28a745;
-}
-
-.bookmark-actions button.mark-done:hover {
-    background-color: #218838;
-}
-
-.bookmark-actions button:hover {
-    opacity: 0.9;
-}
-
-/* Gaya untuk bookmark yang sudah selesai */
-.completed {
-    opacity: 0.7;
-    /* text-decoration: line-through; */ /* Hapus jika tidak ingin ada garis tengah */
-    background-color: #f0f0f0;
-}
-
-/* --- Media Query untuk Tampilan 4 Kolom di Tab Baru (Lebar > 768px) --- */
-@media (min-width: 768px) {
+/* --- Media Query untuk Tampilan Tab Baru (Lebar > 500px) --- */
+@media (min-width: 501px) {
     body {
-        width: auto;
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 15px; /* Tambahkan padding agar konten tidak terlalu menempel di tepi */
+        width: auto; /* Izinkan body mengambil lebar penuh */
+        max-width: 1200px; /* Batasi lebar maksimum */
+        margin: 20px auto; /* Pusatkan */
+        padding: 25px; /* Lebih banyak padding di tab baru */
     }
 
-    .priority-group {
-        /* Gunakan Grid untuk pengaturan kolom utama */
-        display: grid;
-        /* Buat 4 kolom dengan lebar yang sama.
-           '1fr' berarti 'satu bagian dari ruang yang tersedia'.
-           Ini akan secara otomatis membagi ruang menjadi 4 kolom yang sama. */
-        grid-template-columns: repeat(4, 1fr);
-        gap: 20px; /* Jarak antar kolom dan baris */
-        padding: 0; /* Hapus padding di sini, sudah ada di body atau di dalam li */
-        border: none;
-        border-radius: 0;
-        background-color: transparent;
-        margin-bottom: 30px; /* Spasi antar grup prioritas */
+    .bookmark-grid-container {
+        /* 4 kolom untuk tampilan tab baru */
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Ubah minmax sesuai keinginan */
+        gap: 20px; /* Jarak antar kartu lebih besar */
     }
 
-    .priority-group h2 {
-        /* Judul grup mengambil seluruh lebar dari 4 kolom */
-        grid-column: 1 / -1; /* Ini berarti mulai dari kolom pertama sampai kolom terakhir */
-        text-align: center;
-        background-color: #d1e7dd;
-        color: #2c3e50; /* Pastikan warna teks terlihat */
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 15px; /* Spasi di bawah judul grup */
-    }
-
-    /* Target ul di dalam priority-group dan pastikan ia tidak mengganggu Grid */
-    .priority-group ul {
-        display: contents; /* Penting: agar li di dalamnya langsung menjadi item grid */
-        /* Hapus properti seperti width, overflow, float, display: flex dari ul di sini
-           karena parent .priority-group sudah menjadi grid container. */
-    }
-
-    /* Gaya untuk setiap item bookmark (li) sebagai item Grid */
-    .priority-group ul li { /* Target li di dalam ul yang ada di .priority-group */
-        flex-direction: column;
-        align-items: flex-start;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        padding: 15px;
-        height: auto;
-        justify-content: flex-start;
-        
-        /* Hapus float dan width: calc(100% / 4) dari li.
-           Grid sudah menangani lebar kolom secara otomatis dengan '1fr'. */
-        margin: 0; /* Pastikan tidak ada margin yang mengganggu gap grid */
-
-        /* Tambahkan display: flex agar konten di dalam li tetap vertikal */
-        display: flex;
-
-        /* --- Tambahan untuk Background Favicon --- */
-        background-size: contain; /* Ukuran favicon agar sesuai tanpa terpotong */
-        background-repeat: no-repeat; /* Jangan ulangi gambar */
-        background-position: left center; /* Posisikan di tengah kanan */
-        background-blend-mode: luminosity; /* Mode blend untuk efek opasitas yang lebih baik */
-        opacity: 1; /* Pastikan opasitas utama item adalah 1 */
-        transition: background-image 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Transisi agar halus */
-        position: relative;
-    }
-
-    #bookmarkList li:before { 
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: var(--favicon-url); /* Akan diisi dari JS */
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: right center;
-        opacity: 0.2; /* Opasitas 20% untuk favicon background */
-        z-index: 0; /* Pastikan di belakang konten */
-    }
-
-    #bookmarkList li.completed {
-        opacity: 0.7;
-    }
-
-    #bookmarkList li > * {
-        position: relative;
-        z-index: 1;
-    }
-
-    .bookmark-item-content {
-        width: 100%;
-        margin-bottom: 10px;
-        flex-wrap: wrap;
-        display: flex; /* Tambahkan kembali flex agar favicon dan title sejajar */
-        align-items: center;
-        gap: 10px; /* Jarak antara favicon dan title */
-    }
-
-    .bookmark-item-content a { /* Pastikan link tetap baik di dalam flex item */
-        flex-grow: 1;
-        min-width: 0;
-    }
-
-
-    .bookmark-actions {
-        width: 100%;
-        justify-content: flex-end;
-        margin-top: auto;
-        gap: 8px;
-        display: flex; /* Tambahkan kembali flex untuk menata tombol */
-    }
-
-    /* Menyembunyikan tombol "Open as New Tab" jika dibuka di tab baru */
     #openInNewTabButton {
-        display: none;
+        display: none; /* Sembunyikan tombol ini saat sudah di tab baru */
     }
 }

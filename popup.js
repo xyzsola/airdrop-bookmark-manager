@@ -47,62 +47,115 @@ document.addEventListener('DOMContentLoaded', () => {
     bookmarkForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const title = titleInput.value.trim();
-        const url = urlInput.value.trim();
-        let category = categorySelect.value.trim();
+        const title = titleInput.value;
+        const url = urlInput.value;
+        let category = categorySelect.value;
         const newCategory = newCategoryInput.value.trim();
         const priority = prioritySelect.value;
 
         if (newCategory) {
-            category = newCategory; // Gunakan kategori baru jika diberikan
-            const result = await chrome.storage.local.get('categories');
-            let allCategories = result.categories || [];
-            if (!allCategories.includes(category)) {
-                allCategories.push(category);
-                allCategories.sort(); // Urutkan kategori
-                await chrome.storage.local.set({ categories: allCategories });
-            }
+            category = newCategory;
         }
 
-        if (!title || !url || !category || !priority) {
-            statusMessageDiv.textContent = 'Please fill in all required fields.';
-            statusMessageDiv.style.color = 'red';
-            setTimeout(() => statusMessageDiv.textContent = '', 2000);
+        if (!category) {
+            statusMessageDiv.textContent = 'Please select or type a category.';
+            statusMessageDiv.style.color = '#dc3545'; // Merah untuk error
             return;
         }
 
-        const faviconUrl = getFaviconUrl(url);
-
         const newBookmark = {
-            id: Date.now(), // ID unik
-            title,
-            url,
-            category,
-            priority,
-            faviconUrl,
-            completed: false // Default untuk reminder
+            id: Date.now(),
+            title: title,
+            url: url,
+            category: category,
+            priority: priority,
+            faviconUrl: getFaviconUrl(url), // Simpan favicon saat bookmark dibuat
+            completed: false, // Default: belum selesai
+            isFavorite: false // Default: bukan favorit
         };
 
-        const result = await chrome.storage.local.get('bookmarks');
-        let allBookmarks = result.bookmarks || [];
-        allBookmarks.push(newBookmark);
-        allBookmarks.sort((a, b) => b.id - a.id); // Urutkan dari terbaru
+        const result = await chrome.storage.local.get(['bookmarks', 'categories']);
+        let bookmarks = result.bookmarks || [];
+        let categories = result.categories || [];
 
-        await chrome.storage.local.set({ bookmarks: allBookmarks });
+        bookmarks.push(newBookmark);
+
+        if (newCategory && !categories.includes(newCategory)) {
+            categories.push(newCategory);
+            await chrome.storage.local.set({ categories: categories });
+        }
+
+        await chrome.storage.local.set({ bookmarks: bookmarks });
 
         statusMessageDiv.textContent = 'Bookmark added successfully!';
-        statusMessageDiv.style.color = '#28a745'; // Green for success
-        setTimeout(() => {
-            statusMessageDiv.textContent = '';
-            window.close(); // Tutup popup setelah beberapa detik
-        }, 1500);
+        statusMessageDiv.style.color = '#28a745'; // Hijau untuk sukses
 
-        // Clear form
-        bookmarkForm.reset();
-        getActiveTabInfo(); // Isi ulang info tab saat ini
+        // Reset form (kecuali URL)
+        titleInput.value = '';
+        categorySelect.value = '';
         newCategoryInput.value = '';
-        loadCategories(); // Muat ulang kategori untuk dropdown
+        prioritySelect.value = 'Medium';
     });
+
+    // bookmarkForm.addEventListener('submit', async (event) => {
+    //     event.preventDefault();
+
+    //     const title = titleInput.value.trim();
+    //     const url = urlInput.value.trim();
+    //     let category = categorySelect.value.trim();
+    //     const newCategory = newCategoryInput.value.trim();
+    //     const priority = prioritySelect.value;
+
+    //     if (newCategory) {
+    //         category = newCategory; // Gunakan kategori baru jika diberikan
+    //         const result = await chrome.storage.local.get('categories');
+    //         let allCategories = result.categories || [];
+    //         if (!allCategories.includes(category)) {
+    //             allCategories.push(category);
+    //             allCategories.sort(); // Urutkan kategori
+    //             await chrome.storage.local.set({ categories: allCategories });
+    //         }
+    //     }
+
+    //     if (!title || !url || !category || !priority) {
+    //         statusMessageDiv.textContent = 'Please fill in all required fields.';
+    //         statusMessageDiv.style.color = 'red';
+    //         setTimeout(() => statusMessageDiv.textContent = '', 2000);
+    //         return;
+    //     }
+
+    //     const faviconUrl = getFaviconUrl(url);
+
+    //     const newBookmark = {
+    //         id: Date.now(), // ID unik
+    //         title,
+    //         url,
+    //         category,
+    //         priority,
+    //         faviconUrl,
+    //         completed: false // Default untuk reminder
+    //     };
+
+    //     const result = await chrome.storage.local.get('bookmarks');
+    //     let allBookmarks = result.bookmarks || [];
+    //     allBookmarks.push(newBookmark);
+    //     allBookmarks.sort((a, b) => b.id - a.id); // Urutkan dari terbaru
+
+    //     await chrome.storage.local.set({ bookmarks: allBookmarks });
+
+    //     statusMessageDiv.textContent = 'Bookmark added successfully!';
+    //     statusMessageDiv.style.color = '#28a745'; // Green for success
+    //     setTimeout(() => {
+    //         statusMessageDiv.textContent = '';
+    //         window.close(); // Tutup popup setelah beberapa detik
+    //     }, 1500);
+
+    //     // Clear form
+    //     bookmarkForm.reset();
+    //     getActiveTabInfo(); // Isi ulang info tab saat ini
+    //     newCategoryInput.value = '';
+    //     loadCategories(); // Muat ulang kategori untuk dropdown
+    // });
 
     newCategoryInput.addEventListener('input', () => {
         if (newCategoryInput.value.trim() !== '') {
