@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>${bookmark.title}</h3>
                 <div class="action-buttons-group">
                     <button class="action-button mark-done" data-id="${bookmark.id}">${bookmark.completed ? 'Mark Undone' : 'Mark Done'}</button>
-                    <button class="delete-button" data-id="${bookmark.id}">X</button>
+                    <button class="delete-button" data-id="${bookmark.id}"><i class="fas fa-trash"></i></button>
                 </div>
             `;
 
