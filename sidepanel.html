@@ -13,7 +13,10 @@
         <div class="header-section">
             <h1>Airdrops Bookmark</h1>
             <span>Tak garap maka tak JP! Rajin garap juga belum tentu JP!</span>
-            <button id="openInNewTabButton" class="btn btn-primary">Open as New Tab</button> 
+        </div>
+        <div class="top-right-buttons">
+            <button id="openInNewTabButton" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i></button>
+            <button id="openSettingsButton" class="btn btn-secondary btn-sm"><i class="fas fa-cog"></i></button>
         </div>
 
         <div class="tab-navigation nav nav-pills justify-content-center mb-3"></div>
@@ -45,5 +48,24 @@
     
     <script src="assets/bootstrap.bundle.min.js"></script>
     <script src="sidepanel.js"></script>
+    <div class="footer-credit">
+        <p>Created by <a href="https://x.com/solasidoXYZ" target="_blank">@solasidoXYZ</a></p>
+    </div>
+
+    <!-- Bookmark Detail Modal/Overlay -->
+    <div id="bookmarkDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-header-details">
+                <img id="detailFavicon" class="favicon" alt="Favicon">
+                <h2 id="detailTitle"></h2>
+            </div>
+            <p class="detail-url" id="detailUrl"></p>
+            <p class="detail-item"><strong>Category:</strong> <span id="detailCategory"></span></p>
+            <p class="detail-item"><strong>Priority:</strong> <span id="detailPriority"></span></p>
+            <p class="detail-item"><strong>Notes:</strong> <span id="detailNotes"></span></p>
+            <button id="openAirdropButton" class="btn btn-primary mt-3">Open Airdrop</button>
+        </div>
+    </div>
 </body>
 </html>

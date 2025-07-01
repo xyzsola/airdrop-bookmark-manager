@@ -4,12 +4,49 @@ body {
     width: 300px; /* Lebar popup */
     background-color: #f4f7f6;
     color: #333;
+    position: relative; /* Added for absolute positioning of the button container */
+}
+.header-popup {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    /* align-items: flex-start; */
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dbdbdb;
+}
+.top-right-button-container {
+    /* position: absolute; */
+    /* top: 10px; */
+    /* right: 10px; */
+    z-index: 1000;
+    display: flex;
+    height: 30px;
+    width: 30px;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px; /* Smaller icon */
+    padding: 5px 8px; /* Smaller padding */
+    width: auto; /* Override 100% width */
+}
+
+.icon-button:hover {
+    background-color: #2980b9;
 }
 
 h1 {
     color: #2c3e50;
-    margin-bottom: 15px;
-    font-size: 1.2em;
+    /* margin-bottom: 15px; */
+    font-size: 16px;
+    /* margin-top: 30px; */ /* Adjust h1 position to not overlap with the button */
 }
 
 form label {
@@ -19,7 +56,8 @@ form label {
 }
 
 form input[type="text"],
-form select {
+form select,
+form textarea {
     width: calc(100% - 12px);
     padding: 8px;
     margin-bottom: 10px;
@@ -55,4 +93,21 @@ button:hover {
 
 #openSidePanelButton:hover {
     background-color: #45a049;
+}
+
+.footer-credit {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.footer-credit a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.footer-credit a:hover {
+    text-decoration: underline;
 }

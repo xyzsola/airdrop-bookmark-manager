@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Airdrop Bookmarker Settings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Settings</h1>
+        <hr>
+        <div class="reminder-settings">
+            <h2>Reminder Settings</h2>
+            <p>Set a reminder to check your airdrops.</p>
+            <div class="mb-3">
+                <label for="reminderInterval" class="form-label">Remind me every (hours):</label>
+                <input type="number" class="form-control" id="reminderInterval" min="1" value="1">
+            </div>
+            <button id="saveReminder" class="btn btn-primary">Save</button>
+            <div id="status" class="mt-2"></div>
+        </div>
+
+        <hr>
+
+        <div class="category-settings">
+            <h2>Category Management</h2>
+            <div class="mb-3">
+                <label for="newCategoryInput" class="form-label">Add New Category:</label>
+                <input type="text" class="form-control" id="newCategoryInput" placeholder="Enter new category name">
+            </div>
+            <button id="addCategoryButton" class="btn btn-primary">Add Category</button>
+            <div id="categoryStatus" class="mt-2"></div>
+            <ul id="categoryList" class="list-group mt-3"></ul>
+        </div>
+    </div>
+    <script src="settings.js"></script>
+</body>
+</html>

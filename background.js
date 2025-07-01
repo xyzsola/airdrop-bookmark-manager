@@ -1,218 +1,198 @@
 chrome.action.onClicked.addListener(async (tab) => {
-  // Selalu buka popup.html saat ikon diklik untuk menyimpan bookmark baru
-  // default_popup sudah diatur di manifest.json, jadi tidak perlu kode open() di sini.
-  // Jika Anda ingin mengendalikan pembukaan popup, Anda bisa menggunakan chrome.windows.create
-  // dengan tipe 'popup', tapi default_popup lebih sederhana.
-
-  // Jika Anda ingin side panel dibuka secara otomatis juga saat popup dibuka,
-  // Anda bisa tambahkan ini (tetapi biasanya tidak diperlukan, karena side panel bisa dibuka dari menu Chrome)
-  // await chrome.sidePanel.open({ tabId: tab.id });
+  // This is handled by default_popup in manifest.json
 });
 
-// Alarm dan notifikasi pengingat
-// ... (Sertakan semua kode alarm dan notifikasi dari background.js Anda sebelumnya di sini) ...
+// --- Reminder and Notification Logic ---
 
-// Variabel untuk menyimpan interval pengingat
-let reminderInterval;
+let reminderIntervalInHours;
 
-// Fungsi untuk menampilkan notifikasi
+// Function to get the user's reminder setting
+const loadReminderSetting = async () => {
+    const result = await chrome.storage.sync.get(['reminderInterval']);
+    reminderIntervalInHours = result.reminderInterval || 1; // Default to 1 hour
+};
+
+let notificationTimeout;
+
+// Function to show a notification for an uncompleted bookmark
 const showReminderNotification = async () => {
-    console.log('showReminderNotification dipanggil pada:', new Date().toLocaleTimeString()); // Debugging
-    const result = await chrome.storage.local.get(['bookmarks', 'lastReminderId', 'resetTime']);
+    console.log('showReminderNotification called at:', new Date().toLocaleTimeString());
+    const result = await chrome.storage.local.get(['bookmarks', 'remindedBookmarkIds']);
     let bookmarks = result.bookmarks || [];
-    let lastReminderId = result.lastReminderId || null;
-    const resetTime = result.resetTime || null;
+    let remindedBookmarkIds = result.remindedBookmarkIds || [];
 
-    // Periksa apakah perlu direset
-    if (resetTime) {
-        const now = new Date();
-        const resetDate = new Date(resetTime);
-        if (now >= resetDate) {
-            // Waktunya reset!
-            lastReminderId = null; // Atur ulang lastReminderId
-            await chrome.storage.local.set({ lastReminderId: null, resetTime: null }); // Simpan status yang direset
-        }
-    }
+    // Filter for uncompleted bookmarks
+    let uncompletedBookmarks = bookmarks.filter(b => !b.completed);
 
-    // Filter bookmark yang belum "selesai" (misalnya, belum dicentang)
-    // Penting: hanya ingatkan bookmark yang belum selesai
-    bookmarks = bookmarks.filter(b => !b.completed);
-    console.log('Jumlah bookmark yang belum selesai:', bookmarks.length);
-
-    // Urutkan berdasarkan prioritas (High > Medium > Low)
-    bookmarks.sort((a, b) => {
+    // Sort by priority (High > Medium > Low)
+    uncompletedBookmarks.sort((a, b) => {
         const priorityOrder = { 'High': 3, 'Medium': 2, 'Low': 1 };
-        return priorityOrder[b.priority] - priorityOrder[a.priority];
+        return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
     });
 
-    if (bookmarks.length === 0) {
-        // Tidak ada bookmark yang perlu diingatkan
-        // Opsional: Hentikan interval pengingat jika tidak ada bookmark yang tersisa
-        chrome.alarms.clear('30minReminder');
-        // stopReminder();
-        return;
-    }
-
-    // Cari bookmark berikutnya yang akan ditampilkan
-    let nextBookmark;
-    if (lastReminderId) {
-        const lastIndex = bookmarks.findIndex(b => b.id === lastReminderId);
-        // Jika bookmark terakhir yang diingatkan tidak ditemukan (mungkin sudah dihapus/diselesaikan),
-        // atau jika sudah di akhir daftar, mulai dari awal
-        if (lastIndex === -1 || lastIndex === bookmarks.length - 1) {
-            nextBookmark = bookmarks[0];
-        } else {
-            nextBookmark = bookmarks[lastIndex + 1];
+    // Find the next bookmark to show
+    let nextBookmark = null;
+    for (const bookmark of uncompletedBookmarks) {
+        if (!remindedBookmarkIds.includes(bookmark.id)) {
+            nextBookmark = bookmark;
+            break;
         }
-    } else {
-        nextBookmark = bookmarks[0]; // Tampilkan bookmark pertama jika belum ada pengingat
     }
 
-    // Pastikan nextBookmark valid sebelum membuat notifikasi
+    // If all current uncompleted bookmarks have been reminded, reset the cycle
+    if (!nextBookmark && uncompletedBookmarks.length > 0) {
+        remindedBookmarkIds = [];
+        await chrome.storage.local.set({ remindedBookmarkIds: [] });
+        nextBookmark = uncompletedBookmarks[0]; // Start from the highest priority again
+    }
+
     if (!nextBookmark) {
         console.log("No next bookmark found for notification.");
         return;
     }
 
-    // Buat notifikasi
-    console.log('Menampilkan notifikasi untuk:', nextBookmark.title);
+    console.log('Showing notification for:', nextBookmark.title);
     chrome.notifications.create({
         type: 'basic',
         iconUrl: nextBookmark.faviconUrl || getFaviconUrl(nextBookmark.url),
-        title: "Airdrop Reminder - " + nextBookmark.title,
-        message: "Tak garap maka tak JP!",
+        title: `Airdrop Reminder: ${nextBookmark.title}`,
+        message: "Don't forget to check this airdrop!",
         buttons: [{ title: 'Mark as Done' }],
         requireInteraction: true,
-        priority: 2,
-        eventTime: Date.now()
-    }, (notificationId) => {
-        // Simpan ID bookmark yang ditampilkan
-        chrome.storage.local.set({ lastReminderId: nextBookmark.id });
+        priority: 2
+    }, async (notificationId) => {
+        // Add the reminded bookmark ID to the list
+        remindedBookmarkIds.push(nextBookmark.id);
+        await chrome.storage.local.set({ remindedBookmarkIds: remindedBookmarkIds });
+
+        // Clear any existing timeout
+        if (notificationTimeout) {
+            clearTimeout(notificationTimeout);
+        }
+
+        // Set a timeout to close the notification after 1 minute
+        notificationTimeout = setTimeout(() => {
+            chrome.notifications.clear(notificationId);
+            console.log(`Notification ${notificationId} closed due to timeout.`);
+        }, 60000); // 1 minute in milliseconds
     });
 };
 
-// Event listener untuk klik notifikasi
-chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIndex) => {
-    if (buttonIndex === 0) { // Tombol "Mark as Done" diklik
-        const result = await chrome.storage.local.get('bookmarks');
-        let bookmarks = result.bookmarks || [];
-        const lastReminderIdObj = await chrome.storage.local.get('lastReminderId');
-        const currentReminderId = lastReminderIdObj.lastReminderId;
+// --- Alarm Scheduling ---
 
-        // Cari bookmark yang sesuai
-        const bookmarkIndex = bookmarks.findIndex(b => b.id === currentReminderId);
-        if (bookmarkIndex !== -1) {
-            // Tandai sebagai selesai
-            bookmarks[bookmarkIndex].completed = true;
-            await chrome.storage.local.set({ bookmarks: bookmarks });
+// Schedules the main reminder based on user settings
+const scheduleReminderAlarm = async () => {
+    await loadReminderSetting();
+    const periodInMinutes = reminderIntervalInHours * 60;
+    
+    chrome.alarms.create('airdropReminder', {
+        delayInMinutes: 1, // Start after 1 minute from when the alarm is set
+        periodInMinutes: periodInMinutes
+    });
+    console.log(`Airdrop reminder alarm scheduled to run every ${reminderIntervalInHours} hour(s).`);
+};
 
-            // Coba tampilkan notifikasi berikutnya (akan mengambil bookmark berikutnya yang belum selesai)
-            showReminderNotification();
-        }
-    }
-});
-
-// Fungsi untuk menjadwalkan alarm harian
+// Schedules a daily alarm to reset the 'completed' status of bookmarks at 7 AM
 const scheduleDailyReset = () => {
     const now = new Date();
     const resetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 7, 0, 0, 0);
 
     if (now > resetTime) {
-        resetTime.setDate(resetTime.getDate() + 1); // Jadwalkan untuk besok jika sudah lewat jam 7 pagi hari ini
+        resetTime.setDate(resetTime.getDate() + 1); // If it's past 7 AM, schedule for tomorrow
     }
 
     const timeUntilReset = resetTime.getTime() - now.getTime();
-    console.log(`Menjadwalkan alarm reset harian pada ${resetTime.toLocaleTimeString()} (${timeUntilReset / 1000} detik lagi)`); // Debugging
-
+    
     chrome.alarms.create('dailyReset', {
         when: Date.now() + timeUntilReset,
-        periodInMinutes: 24 * 60 // Ulangi setiap 24 jam
+        periodInMinutes: 24 * 60 // Repeat every 24 hours
     });
+    console.log(`Daily reset alarm scheduled for ${resetTime.toLocaleString()}`);
 };
 
-// Fungsi untuk menjadwalkan alarm Pengingat (setiap 30 menit)
-const schedule30MinReminder = () => {
-    console.log('Menjadwalkan alarm pengingat setiap 30 menit.'); // Debugging
-    chrome.alarms.create('30minReminder', {
-        delayInMinutes: 0.1, // Dimulai segera, atau set ke 30 untuk penundaan awal
-        periodInMinutes: 30 // Ulangi setiap 30 menit
-    });
-};
 
+// --- Event Listeners ---
+
+// Handles all alarms
 chrome.alarms.onAlarm.addListener(async (alarm) => {
-    console.log('Alarm dipicu:', alarm.name, 'pada:', new Date().toLocaleTimeString()); // Debugging
+    console.log('Alarm triggered:', alarm.name, 'at:', new Date().toLocaleTimeString());
     if (alarm.name === 'dailyReset') {
-        await chrome.storage.local.set({ lastReminderId: null, resetTime: null }); // Reset status
-        showReminderNotification(); // Tampilkan notifikasi awal setelah reset
-        scheduleDailyReset(); // Jadwalkan ulang alarm reset untuk hari berikutnya
-    } else if (alarm.name === '30minReminder') {
-        showReminderNotification(); // Tampilkan notifikasi pengingat
+        // Reset the 'completed' status for all bookmarks and clear reminded IDs
+        const result = await chrome.storage.local.get('bookmarks');
+        let bookmarks = result.bookmarks || [];
+        bookmarks.forEach(b => b.completed = false);
+        await chrome.storage.local.set({ bookmarks: bookmarks, remindedBookmarkIds: [] });
+        console.log('All bookmarks have been reset to uncompleted and reminded IDs cleared.');
+        // Show a notification right after reset
+        showReminderNotification();
+    } else if (alarm.name === 'airdropReminder') {
+        showReminderNotification();
     }
 });
 
-// Event listener untuk klik tombol notifikasi
+// Handles clicks on the "Mark as Done" button in a notification
 chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIndex) => {
-    if (buttonIndex === 0) { // Tombol "Mark as Done" diklik
-        const result = await chrome.storage.local.get('bookmarks');
-        let bookmarks = result.bookmarks || [];
-        const lastReminderIdObj = await chrome.storage.local.get('lastReminderId');
-        const currentReminderId = lastReminderIdObj.lastReminderId;
+    if (notificationTimeout) {
+        clearTimeout(notificationTimeout);
+    }
 
-        const bookmarkIndex = bookmarks.findIndex(b => b.id === currentReminderId);
-        if (bookmarkIndex !== -1) {
-            bookmarks[bookmarkIndex].completed = true; // Tandai selesai
-            await chrome.storage.local.set({ bookmarks: bookmarks });
-            console.log('Bookmark ditandai selesai:', bookmarks[bookmarkIndex].title); // Debugging
-            // Langsung tampilkan notifikasi berikutnya
-            showReminderNotification();
+    if (buttonIndex === 0) { // "Mark as Done" was clicked
+        const { remindedBookmarkIds, bookmarks } = await chrome.storage.local.get(['remindedBookmarkIds', 'bookmarks']);
+        const currentReminderId = remindedBookmarkIds[remindedBookmarkIds.length - 1]; // Get the last reminded ID
+
+        if (currentReminderId && bookmarks) {
+            const bookmarkIndex = bookmarks.findIndex(b => b.id === currentReminderId);
+            if (bookmarkIndex !== -1) {
+                bookmarks[bookmarkIndex].completed = true;
+                await chrome.storage.local.set({ bookmarks: bookmarks });
+                console.log(`Bookmark '${bookmarks[bookmarkIndex].title}' marked as done.`);
+                // Immediately show the next notification
+                showReminderNotification();
+            }
         }
     }
 });
 
-// Fungsi untuk memulai pengingat
-const startReminder = () => {
-    // Pastikan hanya satu interval yang berjalan
-    if (reminderInterval) clearInterval(reminderInterval);
-    // Jalankan setiap 30 menit (30 * 60 * 1000 milidetik)
-    reminderInterval = setInterval(showReminderNotification, 30 * 60 * 1000);
-};
+// Reschedule alarm if the user changes the setting
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'sync' && changes.reminderInterval) {
+        console.log('Reminder interval setting changed. Rescheduling alarm.');
+        scheduleReminderAlarm();
+    }
+});
 
-// Fungsi untuk menghentikan pengingat (misalnya, saat ekstensi dinonaktifkan)
-const stopReminder = () => {
-    clearInterval(reminderInterval);
-};
+// --- Initialization ---
 
-// Fungsi getFaviconUrl juga perlu ada di background.js karena digunakan oleh showReminderNotification
-const getFaviconUrl = (url) => {
-    return `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(url)}`;
-};
-
-
-// Inisialisasi awal saat service worker dimulai
-// Pastikan setiap bookmark memiliki properti 'completed' (ini lebih baik dilakukan saat load bookmarks)
-// scheduleDailyReset();
-// startReminder();
-
-// Untuk memastikan initial setup dilakukan hanya sekali saat service worker pertama kali berjalan
+// Initial setup when the extension is installed or updated
 chrome.runtime.onInstalled.addListener(async (details) => {
-    if (details.reason === 'install' || details.reason === 'update') {
+    console.log('Extension installed or updated. Initializing...');
+    scheduleDailyReset();
+    scheduleReminderAlarm();
+    
+    // Initialize bookmark properties on first install
+    if (details.reason === 'install') {
         const result = await chrome.storage.local.get('bookmarks');
         let bookmarks = result.bookmarks || [];
         bookmarks.forEach(b => {
-            if (b.completed === undefined) {
-                b.completed = false;
-            }
+            if (b.completed === undefined) b.completed = false;
         });
         await chrome.storage.local.set({ bookmarks: bookmarks });
     }
-    // Selalu jadwalkan pengingat dan alarm saat service worker aktif
-    scheduleDailyReset();
-    // schedule30MinReminder();
 });
 
-// Jika service worker dinonaktifkan/di-restart, pastikan alarm dan interval dimulai kembali
+// Rerun scheduling when the browser starts
 chrome.runtime.onStartup.addListener(() => {
-    console.log("Service worker started up, scheduling reminders.");
+    console.log("Browser started. Scheduling alarms.");
     scheduleDailyReset();
-    // schedule30MinReminder();
+    scheduleReminderAlarm();
 });
+
+// Helper to get favicon URL (needed for notifications)
+const getFaviconUrl = (url) => {
+    try {
+        const urlObject = new URL(url);
+        return `https://www.google.com/s2/favicons?sz=64&domain_url=${urlObject.origin}`;
+    } catch (e) {
+        return 'icons/icon48.png'; // Default icon
+    }
+};

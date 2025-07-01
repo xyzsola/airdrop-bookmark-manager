@@ -4,6 +4,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterPrioritySelect = document.getElementById('filterPriority');
     const showCompletedCheckbox = document.getElementById('showCompleted');
     const openInNewTabButton = document.getElementById('openInNewTabButton');
+    const openSettingsButton = document.getElementById('openSettingsButton');
+
+    // Modal elements
+    const bookmarkDetailModal = document.getElementById('bookmarkDetailModal');
+    const closeButton = document.querySelector('.close-button');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailCategory = document.getElementById('detailCategory');
+    const detailPriority = document.getElementById('detailPriority');
+    const detailNotes = document.getElementById('detailNotes');
+    const openAirdropButton = document.getElementById('openAirdropButton');
+
+    let currentBookmarkUrl = ''; // To store the URL of the currently displayed bookmark
 
     const exportButton = document.getElementById('exportBookmarks');
     const importButton = document.getElementById('importButton');
@@ -103,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.innerHTML = `
                 <img src="${bookmark.faviconUrl || getFaviconUrl(bookmark.url)}" class="favicon" alt="Favicon">
                 <h3>${bookmark.title}</h3>
+                ${bookmark.notes ? `<p class="bookmark-notes">${bookmark.notes}</p>` : ''}
                 <div class="action-buttons-group">
                     <button class="action-button mark-done" data-id="${bookmark.id}">${bookmark.completed ? 'Mark Undone' : 'Mark Done'}</button>
                     <button class="delete-button" data-id="${bookmark.id}"><i class="fas fa-trash"></i></button>
@@ -111,9 +124,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Tambahkan event listener untuk membuka link saat kartu diklik
             card.addEventListener('click', (e) => {
-                // Pastikan klik pada tombol tidak membuka link
-                if (e.target.tagName !== 'BUTTON' && e.target.closest('.action-button') === null) {
-                    chrome.tabs.create({ url: bookmark.url });
+                // Prevent opening the link if a button inside the card was clicked
+                if (e.target.tagName !== 'BUTTON' && !e.target.closest('.action-button')) {
+                    // Populate modal with bookmark details
+                    detailTitle.textContent = bookmark.title;
+                    detailCategory.textContent = bookmark.category;
+                    detailPriority.textContent = bookmark.priority;
+                    detailNotes.textContent = bookmark.notes || 'No notes.';
+                    document.getElementById('detailFavicon').src = bookmark.faviconUrl || getFaviconUrl(bookmark.url);
+                    document.getElementById('detailUrl').textContent = bookmark.url;
+                    currentBookmarkUrl = bookmark.url;
+                    bookmarkDetailModal.style.display = 'flex'; // Show the modal
                 }
             });
 
@@ -199,6 +220,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     openInNewTabButton.addEventListener('click', () => {
         chrome.tabs.create({ url: chrome.runtime.getURL('sidepanel.html') });
+    });
+
+    openSettingsButton.addEventListener('click', () => {
+        chrome.runtime.openOptionsPage();
+    });
+
+    // Modal event listeners
+    closeButton.addEventListener('click', () => {
+        bookmarkDetailModal.style.display = 'none';
+    });
+
+    openAirdropButton.addEventListener('click', () => {
+        if (currentBookmarkUrl) {
+            chrome.tabs.create({ url: currentBookmarkUrl });
+        }
+    });
+
+    // Close modal if clicked outside
+    window.addEventListener('click', (event) => {
+        if (event.target === bookmarkDetailModal) {
+            bookmarkDetailModal.style.display = 'none';
+        }
     });
 
     // --- Export/Import Event Listeners ---
