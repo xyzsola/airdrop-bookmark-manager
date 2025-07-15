@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tab) {
             titleInput.value = tab.title || '';
-            urlInput.value = tab.url || '';
+            urlInput.textContent = tab.url || '';
         }
     };
 
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
 
         const title = titleInput.value;
-        const url = urlInput.value;
+        const url = urlInput.textContent;
         const category = categorySelect.value;
         const priority = prioritySelect.value;
         const notes = notesInput.value.trim();

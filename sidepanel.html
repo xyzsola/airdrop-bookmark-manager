@@ -21,28 +21,32 @@
 
         <div class="tab-navigation nav nav-pills justify-content-center mb-3"></div>
 
-        <div class="filter-priority-controls d-flex flex-wrap flex-column justify-content-center align-items-center mb-3 p-3 rounded">
+        <div class="filter-priority-controls d-flex flex-wrap flex-row justify-content-start align-items-center mb-3">
             <div class="mb-2 mb-md-0 me-md-3">
-                <label for="filterPriority" class="form-label text-light mb-0">Filter by Priority:</label>
-                <select id="filterPriority" class="form-select form-select-sm bg-secondary text-light border-0">
+                <!-- <label for="filterPriority" class="form-label mb-0">Filter by Priority:</label> -->
+                <select id="filterPriority" class="form-select form-select-sm">
                     <option value="">All</option>
                     <option value="High">High</option>
                     <option value="Medium">Medium</option>
                     <option value="Low">Low</option>
                 </select>
             </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="showCompleted">
-                <label class="form-check-label text-light" for="showCompleted">Show Completed</label>
+            <div class="ms-md-3">
+                <!-- <label for="filterStatus" class="form-label mb-0">Filter by Status:</label>s -->
+                <select id="filterStatus" class="form-select form-select-sm">
+                    <option value="all">All</option>
+                    <option value="inProgress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
             </div>
         </div>
         
         <div class="bookmark-grid-container"></div>
 
         <div class="export-import-controls d-flex justify-content-center gap-2 mb-3">
-            <button id="exportBookmarks" class="btn btn-success"><i class="fas fa-download me-2"></i>Export Bookmarks</button>
+            <button id="exportBookmarks"><i class="fas fa-download me-2"></i>Export Bookmarks</button>
             <input type="file" id="importBookmarks" accept=".json" class="d-none">
-            <button id="importButton" class="btn btn-info"><i class="fas fa-upload me-2"></i>Import Bookmarks</button>
+            <button id="importButton"><i class="fas fa-upload me-2"></i>Import Bookmarks</button>
         </div>
     </div> 
     

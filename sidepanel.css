@@ -1,8 +1,8 @@
 body {
     font-family: Arial, sans-serif;
     padding: 0; /* Padding akan ditangani oleh .container-fluid */
-    background-color: #101c2c;
-    color: #f6f6f6;
+    background-color: #f0f2f5;
+    color: #333;
 }
 
 /* --- Header Section --- */
@@ -28,7 +28,7 @@ body {
 }
 
 h1 {
-    color: #e0e0e0;
+    color: #333;
     margin: 0;
     font-size: 1.5em;
     font-weight: bold;
@@ -38,19 +38,20 @@ h1 {
 /* --- Tab Navigation --- */
 /* Kebanyakan gaya ditangani oleh Bootstrap nav nav-pills */
 .tab-navigation .tab-button { /* Sesuaikan jika Anda punya gaya spesifik */
-    background-color: #36393f; /* Darker background for inactive tabs */
-    color: #b9bbbe; /* Lighter text for inactive tabs */
-    border-radius: 20px;
+    background-color: #e4e6eb; /* Light gray for inactive tabs */
+    color: #333; /* Dark text for inactive tabs */
+    border-radius: 0;
     font-size: 0.9em;
     padding: 8px 15px; /* Menjaga padding asli Anda */
+    border: 2px solid black;
 }
 
 .tab-navigation .tab-button:hover {
-    background-color: #4f545c;
+    background-color: #d8dbdf;
 }
 
 .tab-navigation .tab-button.active {
-    background-color: #7289da; /* Discord-like blue for active tab */
+    background-color: #0d6efd; /* Bootstrap primary blue for active tab */
     color: white;
     font-weight: bold;
 }
@@ -58,15 +59,25 @@ h1 {
 /* --- Filter & Priority Controls --- */
 /* Kebanyakan gaya ditangani oleh Bootstrap d-flex, bg-dark-subtle, form-select, dll. */
 .filter-priority-controls {
-    background-color: #182c46;
+    /* background-color: #fff; */
     margin-left: 16px;
     margin-right: 16px;
-    color: #b9bbbe;
+    color: #333;
+    /* border: 3px solid black; */
 }
 
-/* Menjaga warna teks untuk label karena Bootstrap mungkin tidak mengaturnya */
-.filter-priority-controls label {
-    color: #b9bbbe;
+.filter-priority-controls .form-select {
+    border-radius: 0;
+    border: 2px solid black;
+}
+
+.filter-priority-controls .form-check-input {
+    border-radius: 0;
+    border: 2px solid black;
+}
+
+.filter-priority-controls .form-check-label {
+    color: #333;
 }
 
 /* --- Bookmark Grid Container --- */
@@ -80,41 +91,41 @@ h1 {
 
 /* --- Bookmark Card Item --- */
 .bookmark-card {
-    background-color: #182c46;
-    border-radius: 8px;
+    background-color: #fff;
+    border-radius: 0;
     padding: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 4px 4px 0px gray;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
     position: relative;
     height: 100%;
-    /* margin-left: 4px;
-    margin-right: 4px; */
+    border: 2px solid black;
 }
 
 .bookmark-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 6px 6px 0px gray;
 }
 
 .bookmark-card .favicon {
     width: 64px;
     height: 64px;
-    border-radius: 12px;
+    border-radius: 0;
     margin-bottom: 10px;
     object-fit: contain;
-    background-color: #202225;
+    background-color: #f0f2f5;
     padding: 5px;
+    border: 2px solid black;
 }
 
 .bookmark-card h3 {
     margin: 0 0 8px 0;
     font-size: 1.1em;
-    color: #f6f6f6;
+    color: #333;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -127,7 +138,7 @@ h1 {
 
 .bookmark-notes {
     font-size: 0.9em;
-    color: #f6f6f6; /* Same color as h3 */
+    color: #666; /* Same color as h3 */
     width: 100%; /* Same width as h3 */
     margin-top: -5px;
     margin-bottom: 10px;
@@ -145,8 +156,8 @@ h1 {
 
 .action-button { /* Menggunakan nama kelas yang lebih umum, jangan terlalu spesifik ke parent */
     padding: 8px 10px;
-    border: none;
-    border-radius: 5px;
+    border: 2px solid black;
+    border-radius: 0;
     cursor: pointer;
     font-size: 0.9em;
     flex-grow: 1;
@@ -165,8 +176,8 @@ h1 {
     background-color: #e74c3c;
     color: white;
     padding: 8px 10px;
-    border: none;
-    border-radius: 5px;
+    border: 2px solid black;
+    border-radius: 0;
     cursor: pointer;
     font-size: 12px;
     flex-grow: 1;
@@ -199,12 +210,30 @@ h1 {
 }
 
 .bookmark-card .favorite-icon .fa-regular {
-    color: #f0f0f0; /* Warna putih/abu-abu untuk hati tidak favorit */
+    color: #666; /* Warna abu-abu untuk hati tidak favorit */
 }
 
 
 /* --- Export/Import Controls --- */
 /* Kebanyakan gaya ditangani oleh Bootstrap d-flex, justify-content-center, gap-2 */
+
+#exportBookmarks {
+    background-color: #d4edda; /* Light green for export */
+    color: #155724; /* Dark green text */
+}
+
+#exportBookmarks:hover {
+    background-color: #c3e6cb; /* Slightly darker green on hover */
+}
+
+#importButton {
+    background-color: #d1ecf1; /* Light blue for import */
+    color: #0c5460; /* Dark blue text */
+}
+
+#importButton:hover {
+    background-color: #bee5eb; /* Slightly darker blue on hover */
+}
 
 .export-import-controls button i {
     margin-right: 5px;
@@ -237,11 +266,11 @@ h1 {
     margin-top: 20px;
     padding: 10px;
     font-size: 0.8em;
-    color: #b9bbbe;
+    color: #666;
 }
 
 .footer-credit a {
-    color: #7289da;
+    color: #0d6efd;
     text-decoration: none;
 }
 
@@ -265,15 +294,15 @@ h1 {
 }
 
 .modal-content {
-    background-color: #182c46;
+    background-color: #fff;
     margin: auto;
     padding: 20px;
-    border: 1px solid #888;
+    border: 2px solid black;
     width: 80%;
     max-width: 500px;
-    border-radius: 10px;
+    border-radius: 0;
     position: relative;
-    color: #f6f6f6;
+    color: #333;
 }
 
 .close-button {
@@ -288,7 +317,7 @@ h1 {
 
 .close-button:hover,
 .close-button:focus {
-    color: #f6f6f6;
+    color: #000;
     text-decoration: none;
     cursor: pointer;
 }
@@ -296,7 +325,7 @@ h1 {
 #detailTitle {
     font-size: 1.5em;
     margin-bottom: 0;
-    color: #7289da;
+    color: #0d6efd;
     font-weight: bold;
 }
 
@@ -305,8 +334,9 @@ h1 {
     word-break: break-word;
     /* background-color: #202225; */
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 0;
     margin-top: 10px;
+    border: 2px solid black;
 }
 
 #openAirdropButton {
@@ -325,12 +355,13 @@ h1 {
     width: 32px;
     height: 32px;
     margin-right: 10px;
-    border-radius: 4px;
+    border-radius: 0;
+    border: 2px solid black;
 }
 
 .detail-url {
     font-size: 0.9em;
-    color: #b9bbbe;
+    color: #666;
     margin-bottom: 10px;
     word-break: break-all;
 }

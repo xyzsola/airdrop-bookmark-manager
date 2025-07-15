@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabNavigation = document.querySelector('.tab-navigation');
     const bookmarkGridContainer = document.querySelector('.bookmark-grid-container'); // Ganti dari bookmarkList
     const filterPrioritySelect = document.getElementById('filterPriority');
-    const showCompletedCheckbox = document.getElementById('showCompleted');
+    const filterStatusSelect = document.getElementById('filterStatus');
     const openInNewTabButton = document.getElementById('openInNewTabButton');
     const openSettingsButton = document.getElementById('openSettingsButton');
 
@@ -74,16 +74,21 @@ document.addEventListener('DOMContentLoaded', () => {
         bookmarkGridContainer.innerHTML = ''; // Clear current grid
 
         const filterPrio = filterPrioritySelect.value;
-        const showCompleted = showCompletedCheckbox.checked;
+        const filterStatus = filterStatusSelect.value;
 
         const filteredBookmarks = allBookmarks.filter(bookmark => {
             const matchesCategory = activeCategory === '' || bookmark.category === activeCategory;
             const matchesPriority = filterPrio === '' || bookmark.priority === filterPrio;
             // const matchesCompleted = showCompleted || !bookmark.completed;
 
-            const matchesCompletedVisibility = showCompleted || !bookmark.completed;
+            let matchesStatus = true;
+            if (filterStatus === 'inProgress') {
+                matchesStatus = !bookmark.completed;
+            } else if (filterStatus === 'completed') {
+                matchesStatus = bookmark.completed;
+            }
 
-            return matchesCategory && matchesPriority && matchesCompletedVisibility;
+            return matchesCategory && matchesPriority && matchesStatus;
         });
 
         if (filteredBookmarks.length === 0) {
@@ -117,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>${bookmark.title}</h3>
                 ${bookmark.notes ? `<p class="bookmark-notes">${bookmark.notes}</p>` : ''}
                 <div class="action-buttons-group">
-                    <button class="action-button mark-done" data-id="${bookmark.id}">${bookmark.completed ? 'Mark Undone' : 'Mark Done'}</button>
+                    <button class="action-button mark-done" data-id="${bookmark.id}">${bookmark.completed ? 'Undone' : 'Done'}</button>
                     <button class="delete-button" data-id="${bookmark.id}"><i class="fas fa-trash"></i></button>
                 </div>
             `;
@@ -192,15 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 allBookmarks[bookmarkIndex].completed = !allBookmarks[bookmarkIndex].completed;
                 await saveBookmarks();
                 
-                // Jika tombol "Mark Done" diklik, sembunyikan/tampilkan sesuai checkbox
-                if (!showCompletedCheckbox.checked && allBookmarks[bookmarkIndex].completed) {
-                    // Jika mode "sembunyikan yang selesai" aktif dan item baru saja selesai, sembunyikan.
-                    card.style.display = 'none'; // Sembunyikan item
-                } else if (!showCompletedCheckbox.checked && !allBookmarks[bookmarkIndex].completed) {
-                    // Jika mode "sembunyikan yang selesai" aktif dan item baru saja di-undone, tampilkan.
-                    card.style.display = 'flex'; // Tampilkan kembali
+                // Jika tombol "Mark Done" diklik, sembunyikan/tampilkan sesuai dropdown status
+                if (filterStatusSelect.value === 'inProgress' && allBookmarks[bookmarkIndex].completed) {
+                    card.style.display = 'none';
+                } else if (filterStatusSelect.value === 'completed' && !allBookmarks[bookmarkIndex].completed) {
+                    card.style.display = 'none';
                 } else {
-                    // Jika checkbox "Show Completed" dicentang, atau item di-undone, cukup render ulang
                     renderBookmarkCards();
                 }
             }
@@ -216,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     filterPrioritySelect.addEventListener('change', renderBookmarkCards);
-    showCompletedCheckbox.addEventListener('change', renderBookmarkCards);
+    filterStatusSelect.addEventListener('change', renderBookmarkCards);
 
     openInNewTabButton.addEventListener('click', () => {
         chrome.tabs.create({ url: chrome.runtime.getURL('sidepanel.html') });

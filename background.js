@@ -124,9 +124,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         await chrome.storage.local.set({ bookmarks: bookmarks, remindedBookmarkIds: [] });
         console.log('All bookmarks have been reset to uncompleted and reminded IDs cleared.');
         // Show a notification right after reset
-        showReminderNotification();
+        // showReminderNotification();
     } else if (alarm.name === 'airdropReminder') {
-        showReminderNotification();
+        // showReminderNotification();
     }
 });
 
@@ -147,7 +147,7 @@ chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIn
                 await chrome.storage.local.set({ bookmarks: bookmarks });
                 console.log(`Bookmark '${bookmarks[bookmarkIndex].title}' marked as done.`);
                 // Immediately show the next notification
-                showReminderNotification();
+                // showReminderNotification();
             }
         }
     }
