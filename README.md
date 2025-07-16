@@ -16,7 +16,7 @@ You can use this extension to bookmark the airdrop website you are working on. B
     *   Toggle on "Developer mode" in the top right corner.
 4.  **Load Unpacked Extension:**
     *   Click on "Load unpacked".
-    *   Select the cloned `airdrop-bookmark-manager` directory.
+    *   Select the cloned `airdex` directory.
 
 #### Firefox:
 1.  **Clone the repository:**
