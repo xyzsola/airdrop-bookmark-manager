@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         categories.forEach(cat => {
             const li = document.createElement('li');
-            li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+            li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center', 'mb-1');
             li.textContent = cat;
             const deleteButton = document.createElement('button');
             deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');

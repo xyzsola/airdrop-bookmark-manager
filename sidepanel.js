@@ -229,15 +229,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Modal event listeners
-    closeButton.addEventListener('click', () => {
-        bookmarkDetailModal.style.display = 'none';
-    });
+    if (closeButton) {
+        closeButton.addEventListener('click', () => {
+            bookmarkDetailModal.style.display = 'none';
+        });
+    }
 
-    openAirdropButton.addEventListener('click', () => {
-        if (currentBookmarkUrl) {
-            chrome.tabs.create({ url: currentBookmarkUrl });
-        }
-    });
+    if (openAirdropButton) {
+        openAirdropButton.addEventListener('click', () => {
+            if (currentBookmarkUrl) {
+                chrome.tabs.create({ url: currentBookmarkUrl });
+            }
+        });
+    }
 
     // Close modal if clicked outside
     window.addEventListener('click', (event) => {
